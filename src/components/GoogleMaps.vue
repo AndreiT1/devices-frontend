@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div style="display: flex;">
+  <div style="width: 700px;" >
     <input type="text" placeholder="Device ID" v-model="deviceId">
     <input type="text" placeholder="Device name" v-model="deviceName">
     <button @click="addDevice" :disabled="checkIfButtonIsDissabled()">Add device</button>
@@ -15,6 +16,10 @@
     </MarkerCluster>
   </GoogleMap>
 </Suspense>
+</div>
+<div>
+  <img src="legend.png" width="600" height="500">
+</div>
 </div>
 </template>
 
@@ -56,8 +61,8 @@ export default {
    
     function setMarkerOnMap(event) {
       if(Object.keys(newMarker).length === 0) {
-        locations.push({lat:event.latLng.lat(), lng: event.latLng.lng(), title: deviceName.value, serialNumber: deviceId.value, status: 0});
-        newMarker = {lat:event.latLng.lat(), lng: event.latLng.lng() }
+        newMarker = {lat:event.latLng.lat(), lng: event.latLng.lng(), title: deviceName.value, serialNumber: deviceId.value, status: 0};
+        locations.push(newMarker);
       } 
     }
     function onDragMarkerEvent(location) {
