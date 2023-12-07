@@ -3,7 +3,8 @@
   <div style="width: 700px;" >
     <input type="text" placeholder="Device ID" v-model="deviceId">
     <input type="text" placeholder="Device name" v-model="deviceName">
-    <button @click="addDevice" :disabled="checkIfButtonIsDissabled()">Add device</button>
+    <button v-if="hasMarkerBeenSelected" @click="editDevice">Edit device</button>
+    <button v-else @click="addDevice" :disabled="checkIfButtonIsDissabled()">Add device</button>
     <Suspense>
   <GoogleMap api-key="AIzaSyBEpXu8KHfjY3bWhCqVAxR29WGqq9FG84A" 
   style="width: 100%; height: 700px" 
@@ -12,7 +13,7 @@
   @click="setMarkerOnMap">
   <MarkerCluster>
       <Marker v-for="(location, i) in locations"
-      :options="{ position: location,icon: 'icons/'+ location.status +'.png', title: location.title}" :key="i"/>
+      :options="{ position: location,icon: 'icons/'+ location.status +'.png', title: location.title}" :key="i" @click="handleOnClickMarker(location)"/>
     </MarkerCluster>
   </GoogleMap>
 </Suspense>
@@ -55,22 +56,28 @@ export default {
     });
     const deviceId = ref('');
     const deviceName = ref('');
+    let hasMarkerBeenSelected = ref(false);
+    const addOrEditDevice = ref('Add device');
     let newMarker = reactive({});
     let locations = reactive([]);
     
-   
+    function handleOnClickMarker(location) {
+      deviceName.value = location.title;
+      deviceId.value = location.serialNumber;
+      hasMarkerBeenSelected.value = true;
+    }
     function setMarkerOnMap(event) {
       if(Object.keys(newMarker).length === 0) {
         newMarker = {lat:event.latLng.lat(), lng: event.latLng.lng(), title: deviceName.value, serialNumber: deviceId.value, status: 0};
         locations.push(newMarker);
       } 
+      hasMarkerBeenSelected.value = false;
     }
     function onDragMarkerEvent(location) {
       console.log(location);
     }
 
     function checkIfButtonIsDissabled() {
-      console.log(Object.keys(newMarker).length);
       if(deviceId.value.length > 0 && deviceName.value.length>0 && Object.keys(newMarker).length > 0){
         return false;
       }
@@ -88,12 +95,24 @@ export default {
       deviceName.value = '';
     }
 
-    function updateDevice() {
-      console.log('')
+    async function editDevice() {
+      try {
+        const response = await devicesAPI.update({name: deviceName.value, serial_number: deviceId.value});
+        locations.forEach((location)=> {
+            if(location.serialNumber === response.data.serial_number) {
+              location.title = response.data.name;
+            }
+        })
+        hasMarkerBeenSelected.value = false;
+        deviceId.value = '';
+        deviceName.value = '';
+      } catch(e) {
+        console.log(e);
+      }
     }
 
     const center = { lat: 40.689247, lng: -74.044502 };
-    return { center , setMarkerOnMap, locations, deviceId,deviceName, addDevice, checkIfButtonIsDissabled, onDragMarkerEvent};
+    return { center , editDevice, hasMarkerBeenSelected, addOrEditDevice, setMarkerOnMap, locations, deviceId,deviceName, addDevice, checkIfButtonIsDissabled, onDragMarkerEvent, handleOnClickMarker};
   },
 };
 </script>
