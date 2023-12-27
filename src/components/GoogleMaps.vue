@@ -1,6 +1,6 @@
 <template>
   <div style="display: flex;">
-  <div style="width: 700px;" >
+  <div >
     <input type="text" placeholder="Device ID" v-model="deviceId">
     <input type="text" placeholder="Device name" v-model="deviceName">
     <button v-if="hasMarkerBeenSelected" @click="editDevice">Edit device</button>
@@ -17,6 +17,7 @@
     </MarkerCluster>
   </GoogleMap>
 </Suspense>
+<button @click="randomizeDeviceStatuses">Update statuses</button>
 </div>
 <div>
   <img src="legend.png" width="600" height="500">
@@ -33,7 +34,7 @@ export default {
   components: { GoogleMap, Marker },
    setup() {
     const devicesAPI = new DeviceAPI();
-    devicesAPI.index().then((response)=> {
+    devicesAPI.index().then((response) => {
       response.data.forEach(element => {
        locations.push({
         title: element.name,
@@ -91,8 +92,8 @@ export default {
         long : newMarker.lng
       });
       newMarker = {}
-      deviceId.value = '';
-      deviceName.value = '';
+      // deviceId.value = '';
+      // deviceName.value = '';
     }
 
     async function editDevice() {
@@ -110,9 +111,12 @@ export default {
         console.log(e);
       }
     }
+    async function randomizeDeviceStatuses() {
+      await devicesAPI.randomizeDeviceStatuses();
+    }
 
     const center = { lat: 40.689247, lng: -74.044502 };
-    return { center , editDevice, hasMarkerBeenSelected, addOrEditDevice, setMarkerOnMap, locations, deviceId,deviceName, addDevice, checkIfButtonIsDissabled, onDragMarkerEvent, handleOnClickMarker};
+    return { center , randomizeDeviceStatuses, editDevice, hasMarkerBeenSelected, addOrEditDevice, setMarkerOnMap, locations, deviceId,deviceName, addDevice, checkIfButtonIsDissabled, onDragMarkerEvent, handleOnClickMarker};
   },
 };
 </script>

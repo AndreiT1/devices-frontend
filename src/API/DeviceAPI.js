@@ -5,7 +5,7 @@ export default class DeviceAPI {
     axios;
     constructor(){
         this.axios = axios;
-        this.axios.defaults.baseURL= 'http://127.0.0.1:8000';
+        this.axios.defaults.baseURL= import.meta.env.VITE_BACKEND_API_URL;
     }
     index(){
         return this.axios({
@@ -41,6 +41,13 @@ export default class DeviceAPI {
         return this.axios({
             url: 'api/device'+id,
             method: 'delete'
+        });
+    }
+
+    randomizeDeviceStatuses() {
+        return this.axios({
+            url: 'api/device/status/randomize',
+            method: 'get'
         });
     }
 }
