@@ -39,7 +39,7 @@ export default class DeviceAPI {
 
     delete(id){
         return this.axios({
-            url: 'api/device'+id,
+            url: 'api/device/'+id,
             method: 'delete'
         });
     }
